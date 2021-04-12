@@ -1,36 +1,45 @@
-import React ,{useState} from 'react'
-import {useDispatch} from 'react-redux'
-import { addContact } from '../../actions/contactaction';
+import React ,{useEffect, useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {  getContact, updateContact } from '../../actions/contactaction';
 import shortid from 'shortid'
-import { useHistory } from 'react-router';
-export const Addcontact = () => {
+import { useHistory, useParams } from 'react-router';
+export const Editcontact = () => {
+
+    let {id} = useParams();
     let history = useHistory();
+    
+    const contact = useSelector((state)=>state.contact.contact)
     const [name,setName] = useState("");
     const [email,setEmail] = useState("");
     const [phone,setPhone] = useState("");
     const dispatch = useDispatch()
 
-    function createContact(e){
-        e.preventDefault()
-        console.log("name:",name);
-        console.log("email:",email);
-        console.log("phone:",phone);
-        const new_contact ={
-            id:shortid.generate,
+    useEffect(() => {
+        if(contact!=null){
+            setName(contact.name)
+            setPhone(contact.phone)
+            setEmail(contact.email)
+        }
+        dispatch(getContact(id))
+    }, [contact])
+
+    function onUpdateContact(e){
+        e.preventDefault();
+        const update_contact =Object.assign(contact,{
             name:name,
             phone:phone,
             email:email
-        }
-        dispatch(addContact(new_contact))
-        history.push("/")
+        })
+        dispatch(updateContact(update_contact));
+        history.push("/");
     }
-
+    
     return (
         <div>
             <div className="card border-0 shadow">
                 <div className="card-header">Add a contact</div>
                 <div className="card-body">
-                    <form onSubmit={(e)=>createContact(e)}>
+                    <form onSubmit={(e)=>onUpdateContact(e)}>
                         <div className="form-group">
                             <input type="text" className="form-control"
                             placeholder="Enter you Name"
@@ -52,7 +61,7 @@ export const Addcontact = () => {
                                 onChange={(e)=>setEmail(e.target.value)}
                             />
                         </div>
-                        <button className="btn btn-primary" type="submit">Add Contact</button>
+                        <button className="btn btn-danger" type="submit">Edit Contact</button>
                     </form>
                 </div>
 
